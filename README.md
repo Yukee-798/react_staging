@@ -6,7 +6,7 @@
 静态资源文件夹。
 
 * favicon.icon ------ 网站页签图标
-* **index.html -------- 主页面**
+* **index.html -------- 主页面** ，用于承载各个组件的 html 容器
 * logo192.png ------- logo图
 * logo512.png ------- logo图
 * manifest.json ----- 应用加壳的配置文件
