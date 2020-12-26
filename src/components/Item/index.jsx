@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
 import './index.css';
 
 class Item extends Component {
     state = {id: this.props.id, isMouseIn: false, isChecked: false}
+    static propTypes = {
+        updateTodos: PropTypes.func.isRequired
+    }
 
     onMouseEnter = () => this.setState({ isMouseIn: true })
     onMouseLeave = () => this.setState({ isMouseIn: false })

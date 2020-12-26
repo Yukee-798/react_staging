@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
 // 随机 id 生成库
 import {nanoid} from 'nanoid';
 import './index.css';
 
 class Header extends Component {
     state = {value: ''}
+    static propTypes = {
+        updateTodos: PropTypes.func.isRequired
+    }
 
     change = (event) => {
         this.setState({value: event.target.value});
