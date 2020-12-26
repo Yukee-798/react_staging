@@ -30,18 +30,16 @@ import './App.css';
 
 class App extends Component {
     state = {
-        todos: [
-            {id: '001', name: '占位测试', checked: true},
-            {id: '002', name: '占位测试', checked: false},
-            {id: '003', name: '占位测试', checked: false}
-        ]
+        todos: []
     }
 
     // 用于子组件传递给父组件数据  (状态在哪里，更新状态的方法就在哪里)
     updateTodos = (date) => {
         let isAddTodo = Object.keys(date).length === 3 ? true : false;
         let isUpdateCheck = Object.keys(date).length === 2 ? true : false;
+        let isTotalCheckChange = typeof(date) === 'boolean';
         let isDeleteTodo = Object.keys(date).length === 1 ? true : false;
+        let isDeleteFinished = Array.isArray(date);
 
         // 用于添加todo
         if (isAddTodo) {
@@ -60,7 +58,6 @@ class App extends Component {
                     return {...todoObj, checked: date.checked};
                 } else return todoObj;
             });
-
             this.setState({ todos });
         }
 
@@ -72,6 +69,23 @@ class App extends Component {
             this.setState({ todos })
         }
 
+        if (isTotalCheckChange) {
+            let { todos } = this.state;
+            todos = todos.map((todoObj) => {
+                return {...todoObj, checked: date}
+            });
+            this.setState({ todos });
+        }
+
+        if (isDeleteFinished) {
+            let { todos } = this.state;
+            todos = todos.filter((todoObj) => {
+                // 筛选出 date 里面不包含的 todo
+                return !date.includes(todoObj.id);
+            });
+            this.setState({ todos });
+        }
+
     }
 
     render() {
@@ -79,9 +93,9 @@ class App extends Component {
             <div>
                 <div className="todo-container">
                     <div className="todo-wrap">
-                        <Header updateTodos = {this.updateTodos} />
-                        <List updateTodos = {this.updateTodos} todos={this.state.todos}/>
-                        <Footer />
+                        <Header updateTodos={this.updateTodos} />
+                        <List updateTodos={this.updateTodos} todos={this.state.todos}/>
+                        <Footer updateTodos={this.updateTodos} todos={this.state.todos}/>
                     </div>
                 </div>
             </div>

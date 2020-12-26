@@ -13,9 +13,13 @@ class Item extends Component {
     onMouseLeave = () => this.setState({ isMouseIn: false })
 
     handleCheck = (event) => {
+        // 点击 check 后 checked 变为 true
         const { checked } = event.target;
+
+        // 修改状态
         this.setState({ isChecked: checked });
 
+        // 更新 App 组件中的 todo
         const {updateTodos} = this.props;
         updateTodos({id: this.state.id, checked: checked});
     }
@@ -27,6 +31,10 @@ class Item extends Component {
             updateTodos({ id: this.state.id });
         }
 
+    }
+
+    static getDerivedStateFromProps(props) {
+        return {isChecked: props.checked};
     }
 
     render() {
