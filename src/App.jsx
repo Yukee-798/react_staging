@@ -31,17 +31,38 @@ import './App.css';
 class App extends Component {
     state = {
         todos: [
-            {id: '001', name: '占位测试', done: true},
-            {id: '002', name: '占位测试', done: false},
-            {id: '003', name: '占位测试', done: false}
+            {id: '001', name: '占位测试', checked: true},
+            {id: '002', name: '占位测试', checked: false},
+            {id: '003', name: '占位测试', checked: false}
         ]
     }
 
-    // 用于子组件传递给父组件数据
-    updateTodos = (todo) => {
-        const {todos} = this.state;
-        todos.unshift(todo);
-        this.setState({todos});
+    // 用于子组件传递给父组件数据  (状态在哪里，更新状态的方法就在哪里)
+    updateTodos = (date) => {
+        let isAddTodo = Object.keys(date).length === 3 ? true : false;
+        let isUpdateCheck = Object.keys(date).length === 2 ? true : false;
+
+        // 用于添加todo
+        if (isAddTodo) {
+            const { todos } = this.state;
+            todos.unshift(date);
+            this.setState({ todos });
+        }
+
+        // 用于更新 todo 的 check 状态
+        if (isUpdateCheck) {
+            let { todos } = this.state;
+
+            todos = todos.map((todoObj) => {
+                if (todoObj.id === date.id) {
+                    // 将 todoObj 的 checked 属性改变
+                    return {...todoObj, checked: date.checked};
+                } else return todoObj;
+            });
+
+            this.setState({ todos });
+        }
+
     }
 
     render() {
@@ -50,7 +71,7 @@ class App extends Component {
                 <div className="todo-container">
                     <div className="todo-wrap">
                         <Header updateTodos = {this.updateTodos} />
-                        <List todos={this.state.todos}/>
+                        <List updateTodos = {this.updateTodos} todos={this.state.todos}/>
                         <Footer />
                     </div>
                 </div>

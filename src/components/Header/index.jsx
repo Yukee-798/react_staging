@@ -5,10 +5,9 @@ import './index.css';
 
 class Header extends Component {
     state = {value: ''}
-    myInputRef = React.createRef();
 
-    change = () => {
-        this.setState({value: this.myInputRef.current.value});
+    change = (event) => {
+        this.setState({value: event.target.value});
     }
 
     handleKeyUp = (event) => {
@@ -28,7 +27,7 @@ class Header extends Component {
             let todo = null;
 
             // 生成 todo 对象
-            todo = {id: nanoid(), name: value, done: false};
+            todo = {id: nanoid(), name: value, checked: false};
 
             // 修改 App 父组件的状态
             updateTodos(todo);
@@ -40,7 +39,6 @@ class Header extends Component {
         return (
             <div className="todo-header">
                 <input 
-                    ref={this.myInputRef} 
                     onKeyUp={this.handleKeyUp} 
                     onChange={this.change} 
                     type="text" 
