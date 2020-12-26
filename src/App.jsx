@@ -41,6 +41,7 @@ class App extends Component {
     updateTodos = (date) => {
         let isAddTodo = Object.keys(date).length === 3 ? true : false;
         let isUpdateCheck = Object.keys(date).length === 2 ? true : false;
+        let isDeleteTodo = Object.keys(date).length === 1 ? true : false;
 
         // 用于添加todo
         if (isAddTodo) {
@@ -61,6 +62,14 @@ class App extends Component {
             });
 
             this.setState({ todos });
+        }
+
+        if (isDeleteTodo) {
+            let { todos } = this.state;
+
+            // 过滤数组元素：将 id 不等于 date.id 的 todo 留下
+            todos = todos.filter(todoObj => todoObj.id !== date.id);
+            this.setState({ todos })
         }
 
     }

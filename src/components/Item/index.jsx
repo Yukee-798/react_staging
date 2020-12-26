@@ -20,6 +20,15 @@ class Item extends Component {
         updateTodos({id: this.state.id, checked: checked});
     }
     
+    handleDelete = () => {
+        let isDelete = window.confirm('你确定删除吗？');
+        if (isDelete) {
+            const { updateTodos } = this.props;
+            updateTodos({ id: this.state.id });
+        }
+
+    }
+
     render() {
         const {name} = this.props;
         return (
@@ -36,6 +45,7 @@ class Item extends Component {
                 <button 
                     className="btn btn-danger" 
                     style={{ display: this.state.isMouseIn ? 'inline' : 'none' }}
+                    onClick={() => this.handleDelete()}
                 >
                     删除
                 </button>
