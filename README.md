@@ -1,6 +1,7 @@
 # 学习收获
 
 ## 一、文件目录说明
+---
 ### node_moduels
 脚手架导入的依赖文件。
 
@@ -31,6 +32,7 @@
 <br/>
 
 ## 二、功能界面的组件化编码流程
+---
 1. 拆分组件: 拆分界面,抽取组件
 2. 实现静态组件: 使用组件实现静态页面效果
 3. 实现动态组件 <br/>
@@ -41,6 +43,7 @@
     (4)交互(从绑定事件监听开始) <br/>
 
 ## 三、TodoList 案例的收获
+---
 1. 组件拆分、实现静态组件，注意：`className`、`style` 的写法
 2. 动态初始化列表，如何确定将数据放在哪个组件的 `state` 中？ <br/>
     (1) 供某个组件使用的数据：放在其自身的 `state` 中 <br/>
@@ -56,7 +59,7 @@
 <br/>
 
 ## 四、React and AJAX
-
+---
 ### 前置说明
 1. React 本身只关注于界面, 并不包含发送 ajax 请求的代码
 2. 前端应用需要通过 ajax 请求与后台进行交互 ( json 数据)
@@ -169,3 +172,57 @@
 
 1. 优点：可以配置多个代理，可以灵活的控制请求是否走代理。
 2. 缺点：配置繁琐，前端请求资源时必须加前缀。
+
+## 五、路由
+---
+### 路由的基本使用
+1. 明确好界面中的导航区、展示区
+2. 导航区的 a 标签改为 Link 标签
+`<Link to="/点击该链接后跳转的路径">Demo</Link>`
+3. 展示区写Route标签进行路径的匹配，匹配成功则放置后面的组件
+`<Route path= "/匹配路径" component={Demo}/>`
+4. 在 index.js 中的 `<App />` 的最外侧包裹一个 `<BrowserRouter>` 或 `<HashRouter>`
+
+
+
+### 路由组件与一般组件
+1. 写法不同：
+   * 一般组件：`<Demo/>`
+   * 路由组件：`<Route path=" /demo" component={Demo}/>`
+2. 存放位置不同：
+   * 一般组件：components
+   * 路由组件：pages
+3. 接收到的props不同：
+   * 一般组件：写组件标签时传递了什么，就能收到什么
+   * 路由组件：接收到 **三个固定的属性**
+    ```js
+    history:
+      go: ƒ go(n)
+      goBack: ƒ goBack()
+      goForward: ƒ goForward()
+      push: ƒ push(path, state)
+      replace: ƒ replace(path, state)
+
+    location:
+      pathname: "/about"
+      search: ""
+      state: undefined
+
+    match:
+      params: {}
+      path: "/about"
+      url: "/about"
+    ```
+
+### NavLink 与封装 NavLink
+1. `NavLink` 可以实现路由链接的高亮，通过 `activeClassName` 指定样式名
+2. 标签体内容是一个特殊的标签属性
+3. 通过 `this.props.children` 可以获取标签体内容
+
+### Switch 的使用
+1. 通常情况下，path 和 component是一一对应的关系
+2. 使用 Switch 组件包裹路由：当某一个路由匹配上路径的时候，就不会再继续往下进行搜索匹配了
+
+
+
+

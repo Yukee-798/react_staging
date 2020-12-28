@@ -11,19 +11,24 @@ export default class App extends Component {
             //     login: 'Yukee-798',
             //     html_url: 'https://github.com/Yukee-798'
             // }
-        ]
+        ],
+        // 是否为第一次打开页面
+        isFirst: true,
+        // 是否在搜索加载
+        isLoading: false,
+        err: '' // 存储请求相关错误信息
     }
 
-    updateUsers = (users) => {
-        this.setState({users});
+    updateAppState = (stateObj) => {
+        this.setState(stateObj)
     }
 
     render() {
         return (
             <div>
                 <div className="container">
-                    <Search updateUsers={this.updateUsers}/>
-                    <List users={this.state.users}/>
+                    <Search updateAppState={this.updateAppState}/>
+                    <List {...this.state}/>
                
                 </div>
             </div>
