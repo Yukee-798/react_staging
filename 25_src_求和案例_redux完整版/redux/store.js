@@ -3,13 +3,8 @@
 
 */
 // 引入 createStore 专门用于创建 store 对象的 (BOSS)
-import {createStore, applyMiddleware} from 'redux';
-
-// 引入 redux-thunk 用于支持异步 action
-import thunk from 'redux-thunk'
-
+import {createStore} from 'redux';
 // 引入为 Number 组件服务的 reducer
 import number_reducer from './number_reducer'
 
-
-export default createStore(number_reducer, applyMiddleware(thunk));
+export default createStore(number_reducer);

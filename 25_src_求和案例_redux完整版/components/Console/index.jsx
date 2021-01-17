@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {createIncrementAsyncAction, createIncrementAction, createDecrementAction} from '../../redux/number_action'
+import {createIncrementAction, createDecrementAction} from '../../redux/number_action'
 
 // 获取 store 对象用于向 numberReducer 发出动作
 import store from '../../redux/store'
@@ -27,12 +27,9 @@ class Console extends Component {
             break;
 
             case this.addAsyncBtn:
-                // 这里传递了一个函数给 store 去分发任务给 reducer，但是 store 是不认函数的，因为没有 type 和 action 无法让 reducer 工作
-                // store.dispatch(createIncrementAsyncAction(value, 1000));
-
-                // 我们希望的只是让 store 去执行一下这个 createIncrementAsyncAction(value, 1000) 返回的函数
-                // 需要借助一个库里面的中间件，来让 store ：当传入一个函数的时候只需要执行一个这个函数，不需要通知 reducer 工作
-                store.dispatch(createIncrementAsyncAction(value, 1000));
+                setTimeout(() => {
+                    store.dispatch(createIncrementAction(value))
+                }, 1000);
             break;
 
             default:

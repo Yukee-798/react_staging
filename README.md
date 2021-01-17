@@ -276,3 +276,54 @@
    * 注册路由(无需声明，正常注册即可): `<Route path='/demo/test' component={Test}/>`
    * 接收参数: this.props.location.state
    * 备注:刷新也可以保留住参数
+
+
+## 六、redux 
+---
+
+### redux 的基本使用
+1. 目录结构
+    > -src
+    > &emsp;-redux
+    > &emsp;&emsp;&emsp;-store.js
+    > &emsp;&emsp;&emsp;-number_reducer.js
+
+2. store.js 的使用
+     * 通过 redux 引入 createStore 函数来创建 store 对象
+     * 调用 createStore 时需要传入一个 reducer
+     * 通过 `store.dispatch(actionObj)` 通知 reducer 用什么方式处理数据
+     * 通过 `store.getState()` 来获取 reducer 加工后的状态数据
+     * 通过 `store.subscribe(() => {})` 来监控共享状态改变后执行回调
+3. number_reducer.js 的使用
+     * reducer 本质上是一个函数，接收：preState, action 两个参数，返回加工后的状态数据到 store 对象中
+     * reducer 的作用：初始化状态和加工状态
+     * 在页面加载时，store 会自动调用一次 reducer 来初始化共享状态，此时的 preState 为 undefined，action 为一个随机字符串
+
+4. number_action.js 专门用于创建 Number 组件的 action 对象
+5. constant.js 保存 action 的 type 常量
+
+### 同步和异步 action
+1. 同步 action：`store.dispatch()` 中的 action 对象就是一个普通的 Object 对象
+2. 异步 action：`store.dispatch()` 中的 action 对象是一个函数
+
+> 在求和案例中，对于异步加，之前使用的同步 action，所以异步操作是放在了组件里面实现的，如果使用异步 action，那么异步操作就是放在 action 函数中实现的。
+
+**启动异步 action 步骤**
+1. store.js 中 `import thunk from 'redux-thunk'`、`import {createStore, applyMiddleware} from 'redux'`
+2. store.js 中 `export default createStore(number_reducer, applyMiddleware(thunk))`
+3. 创建异步 action
+    ```js
+    export const createIncrementAsyncAction = (data, time) => {
+        return (dispatch) => {
+            setTimeout(() => {
+                dispatch(createIncrementAction(data));
+            }, time);
+        }
+    };
+    ```
+4. 在组件中需要执行该 action 来修改状态的地方 `store.dispatch(createIncrementAsyncAction(value, 1000));`
+
+
+![](https://tva1.sinaimg.cn/large/008eGmZEly1gmqocktzd6j310u09knab.jpg)
+
+  
