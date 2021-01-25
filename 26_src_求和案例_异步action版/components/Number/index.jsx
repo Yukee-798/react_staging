@@ -18,12 +18,7 @@ export default class Number extends Component {
     // }
 
 
-    componentWillUnmount() {
-    }
-    
     render() {
-
-        console.log(store.getState().number);
         return (
             <div>
                 <span>当前求和为：{store.getState().number}</span>
