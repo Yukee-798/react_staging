@@ -1,52 +1,59 @@
-import React, { Component } from 'react';
-import './style.css';
+import React, { Component } from 'react'
+import './style.css'
+/* 
+    UI 组件只能通过 props 来接收容器组件传送过来的东西
+    1. 共享状态的数据 (创建容器组件时，mapStateToProps方法返回)
+    2. 操作状态的函数 (创建容器组件时，mapDispatchProps方法返回)
 
-class Console extends Component {
-    
-    handleClick = (event)=> {
 
-        let value = this.select.value;
+*/
+export default class Number extends Component {
 
-        switch(event.target) {
+    state = { myName: 'momo' }
+    handleClick = (event) => {
+
+        let value = this.select.value*1;
+
+        const { add, sub, asyncAdd, number } = this.props;
+
+        switch (event.target) {
             case this.addBtn:
-                // 通知 reducer 进行 add 类型处理状态数据
+                add(value);
 
-            break;
+                break;
 
             case this.subBtn:
-            break;
+                sub(value);
+                break;
 
             case this.addIfOddBtn:
-            break;
+                if (number % 2 !== 0) add(value);
+                break;
 
             case this.addAsyncBtn:
-                        
-            break;
-
+                asyncAdd(value, 1000);
+                break;
             default:
         }
 
     }
-
-
     render() {
+
         return (
             <div>
+                <span>当前求和为：{this.props.number}</span>
                 <form action="" onClick={this.handleClick}>
                     <select name="" id="select" ref={c => this.select = c}>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
-                    </select> 
+                    </select>
                     <button ref={c => this.addBtn = c} type="button" >+</button>
                     <button ref={c => this.subBtn = c} type="button" >-</button>
                     <button ref={c => this.addIfOddBtn = c} type="button">increment if odd</button>
                     <button ref={c => this.addAsyncBtn = c} type="button">increment async</button>
                 </form>
-
             </div>
-        );
+        )
     }
 }
-
-export default Console;
