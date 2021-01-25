@@ -323,7 +323,39 @@
     ```
 4. 在组件中需要执行该 action 来修改状态的地方 `store.dispatch(createIncrementAsyncAction(value, 1000));`
 
+注意：
+* 创建异步 action 的实质就是返回了一个函数对象，这个函数实现了异步的调用同步 action 的逻辑
+* 创建 store 时，传入了 `applyMiddleware(thunk)` 目的是在 store 分发(dispatch) action 时，如果返回的是函数则直接调用，如果是一个 action 对象，形如：{type:'', data: ''}，则通知 reducer
+* 异步 action 不是必须要写的，完全可以组件中实现异步操作，不一定只在 action 中实现
 
-![](https://tva1.sinaimg.cn/large/008eGmZEly1gmqocktzd6j310u09knab.jpg)
+
+
+### react-redux 的基本使用
+#### UI 组件
+1. 不能使用 redux 的任何 api
+2. 只能通过 props 接收来自容器组件传来的 `状态` 和 `操作状态的方法` 进而来实现页面渲染和交互
+
+#### 容器组件
+1. 容器组件的创建：`connect(mapStateToProps, mapDispatchToProps)(NumberUI)`，通过 react-redux 中的 `connect` 来创建，调用后会返回容器组件对象
+2. 向容器组件传入 store，`<Container store={store}> </Container>`
+3. 容器组件连接 UI 组件，自此容器组件就成为了 `UI 组件` 和 `redux` 之间的桥梁
+4. mapStateToProps：用于向 UI 组件传递状态数据，有一个默认的参数即 UI 组件的共享状态 `state`，需要返回一个对象，形如 `{age: state.age}`，该返回的对象的属性会追加到 UI 组件的 props 中
+5. mapDispatchToProps：
+    * 用于向 UI 组件传递操作状态的方法，有一个默认参数即 dispatch
+    * 简写方式：直接传入一个对象，对象中的属性就是 createAction 的方法，形如： {add: createIncrementAction}
+6. 使用了 react-redux 后，容器组件自动实现了共享状态的监测和页面重新渲染，因此不用再订阅了(connect 底层实现的)
+
+
+#### Provider 组件
+使用场景：
+```js
+ReactDOM.render(
+    // Provider 用于向所有容器组件传递 store
+    <Provider store={store}>
+        <App />
+    </Provider>, 
+    document.getElementById('root')
+);
+```
 
   
