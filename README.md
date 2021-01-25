@@ -358,4 +358,10 @@ ReactDOM.render(
 );
 ```
 
+#### react-redux 优化
+1. 将 `容器组件`和 `UI 组件` 整合为一个文件
+2. 无需给每一个容器组件依次传入 store，只需要将入口文件 index.js 的 `App 组件` 外包裹一个 `Provider` 并传入 store 即可
+3. 使用了 react-redux 后不需要再通过订阅来监控共享状态的变化
+4. 通过 `connect` 创建容器组件时传入的 `mapDispatchToProps` 可以是一个对象
+
   
