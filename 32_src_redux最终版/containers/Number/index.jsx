@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createAddAction, createSubAction, createAsyncAddAction } from '../../redux/actions_number'
+import { add, sub, asyncAdd } from '../../redux/actions/number'
 import './index.scss'
 
 class Number extends Component {
@@ -27,9 +27,10 @@ class Number extends Component {
     
 
     render() {
-        const {number} = this.props;
+        const {number, personCounts} = this.props;
         return (
             <div className='number-warp'>
+                <h3>我是Number组件，接收到来自Person组件数据：{personCounts}人</h3>
                 <div className='number-title'>
                     <h3>number: {number}</h3>
                 </div>
@@ -51,10 +52,15 @@ class Number extends Component {
 }
 
 export default connect(
-    state => ({number: state.number}),
+    allStates => (
+        {
+            number: allStates.number.counts,
+            personCounts: allStates.person.personArr.length
+        }
+    ),
     {
-        add: createAddAction,
-        sub: createSubAction,
-        asyncAdd: createAsyncAddAction
+        add,
+        sub,
+        asyncAdd
     }
 )(Number);
