@@ -365,3 +365,46 @@ ReactDOM.render(
 4. 通过 `connect` 创建容器组件时传入的 `mapDispatchToProps` 可以是一个对象
 
   
+#### react-redux 多组件数据共享
+1. 定义一个 Person 组件，通过 redux 和 Number 组件实现数据共享
+2. 为 Person 组件编写：reducer、action、constant
+3. 重点：在 store.js 中，使用 combineReducers 将 Person 组件和 Number 组件的 Reducer 合并为一个总状态对象
+4. 所有容器组件中 mapStateToProps 里面的 state 就是 allStates，即两个组件合并之后的总状态对象，就是 store.js中 combineReducers 传入的那个总状态对象，里面的每一个 key 对应的 value 就是 对应的 reducer 处理完数据后返回对应组件的共享状态对象
+
+```js
+const allReducers = combineReducers(
+    {
+        numberState: reducerNumber,
+        personState: reducerPerson 
+    }
+)
+```
+```js
+export default function numberReducer(preState = {number: 0}, action) {
+    const {type, data} = action
+    switch (type) {
+        case ADD:
+            return {number: preState.number + data * 1}
+        case SUB:
+            return {number: preState.number - data * 1}
+        default: 
+            return preState
+    }
+}
+```
+```js
+export default function personReducer(preState = {personArr: []}, action) {
+    const {type, data} = action
+    switch (type) {
+        case ADD_PERSON: 
+            return {personArr: [...preState.personArr, data]}
+        case DELETE_PERSON:
+            let newPersonArr = [];
+            newPersonArr = preState.personArr.filter(item => item.order !== data)
+            return {personArr: newPersonArr}
+        default: 
+            return preState
+    }
+}
+```
+
