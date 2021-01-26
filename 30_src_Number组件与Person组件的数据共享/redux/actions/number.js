@@ -1,4 +1,4 @@
-import { ADD, SUB } from './constant'
+import { ADD, SUB } from '../constant'
 
 
 export const createAddAction = data => ({type: ADD, data});

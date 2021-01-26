@@ -1,4 +1,4 @@
-import {ADD, SUB} from './constant'
+import {ADD, SUB} from '../constant'
 
 export default function numberReducer(preState = {number: 0}, action) {
     const {type, data} = action
