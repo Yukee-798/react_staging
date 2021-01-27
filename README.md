@@ -407,4 +407,183 @@ export default function personReducer(preState = {personArr: []}, action) {
     }
 }
 ```
+#### 纯函数的定义
+在 redux 中 reducer 必须是一个纯函数，需要满足以下条件：
+* 传入特定的值，返回的结果是一定的，如：return Math.random()，这种返回值就是不定的
+* 不得改变传入参数的值或内容，如：传入了一个数组，在函数内部不能改变这个参数的元素
+* 不能执行一些不可约束的代码，如：网络请求，这种与网络相关，我们并不知道是不是会请求超时还是请求成功
+* 不能调用 Date.now() 和 Math.random() 这种不纯的方法
+
+这也解释了为什么下面注释的代码会存在问题
+```js
+export default function personReducer(preState = {personArr: []}, action) {
+    const {type, data} = action
+    
+    switch (type) {
+        case ADD_PERSON: 
+            // newPersonArr = preState.personArr;
+            // newPersonArr.push(data)
+            return {personArr: [...preState.personArr, data]}
+
+        case DELETE_PERSON:
+            let newPersonArr = [];
+            newPersonArr = preState.personArr.filter(item => item.order !== data)
+            return {personArr: newPersonArr}
+
+        default: 
+            return preState
+    }
+}
+```
+
+#### redux 开发者工具的使用
+1. `npm install redux-devtools-extension`
+2. 在 store.js 文件中 `import {composeWithDevTools} from 'redux-devtools-extension'`
+3. `export default createStore(allReducers, composeWithDevTools(applyMiddleware(thunk)))`
+
+
+### React Hooks
+
+#### useState
+1. 传入一个初始状态一个数据给组件然后调用
+2. 返回一个当前状态该数据的 key 「 number 」 和 修改 value 的方法 「 setNumber」
+3. 每次 setNumber 时都会重新调用该函数组件，但是 React 底层处理了 useState 这个方法，不会每次都初始化状态
+4. setNumber 方法有两种写法：
+    (1) setNumber(preNumber => preNumber + 1)
+    (2) setNumber(number + 1)
+5. useState 可以多次使用，表示初始化和操作多个状态 key 
+
+> 注意：这里的函数组件状态跟之前的不一样，这里状态可以理解为多个值，useState 返回的第一个数组元素就是这个值的 key，第二个元素是操作这个值的方法
+每次 useState 时都会新增一个 key
+
+#### useEffect
+1. 「 不写第二个参数」 表示监测所有的状态变化，组件 「 初次挂载完毕 」 和 「 监测的状态 」 更新时，都会执行回调函数
+    ```js
+    React.useEffect(() => {
+
+    })
+    ```
+2. 「 第二个参数传入一个空数组 」 表示不监测任何状态变化，只有组件 「 初次挂载完毕 」 才会执行回调函数，相当于 componentDidMount
+    ```js
+    React.useEffect(() => {
+
+    }, [])
+    ```
+    
+3. 「 第二个参数传入某个状态 key 」 表示只监测该 key 的状态变化，组件 「 初次挂载完毕 」 和 「 该 key 对应的状态变化时 」 才会执行回调函数
+    ```js
+    React.useEffect(() => {
+
+    }, [number])
+    ```
+
+4. 回调函数中 「 返回一个函数 」 的内部相当于 componentWillUnmount
+    ```js
+    React.useEffect(() => {
+        let timer =  setInterval(() => {
+            setNumber(number + 1)
+        }, 1000)
+
+        return () => {
+            console.log('组件即将卸载');
+            clearInterval(timer)
+        }
+    }, [])
+    ```
+
+5. 可以把 useEffect Hook 看做如下三个函数的组合
+    ```js
+    componentDidMount()
+    componentDidUpdate()
+    componentWillUnmount()
+    ```
+
+#### useRef
+一般使用场景
+1. `const selectRef = useRef()` 创建 ref
+2. 在需要使用 ref 的结点内设置好 ref
+3. `selectRef.current` 表示当前设置了 selectRef 的结点对象
+
+其他使用场景
+1. `const refContainer = useRef(initialValue)`
+2. 这里的 `initialValue` 就是 `refContainer` 的 `current` 初始值，可以用来保存任何数据
+
+#### useMemo
+#### useCallback
+```js
+const fn = useCallback(() => {
+
+}, [])
+```
+可以缓存一个函数，当函数内部所使用的依赖发生改变的时候会回调该函数
+
+#### useSelector
+在函数组件的内部使用 `useSelector` 来获取 `store` 中的状态数据
+```js
+const Number = (props) => {
+    const { number, personCounts } = useSelector(allStates => ({
+        number: allStates.number.counts, 
+        personCounts: allStates.person.personArr.length
+    }));
+
+    return (
+        <>
+            <h1>number: {number}, counts: {personCounts}</h1>
+        </>
+    )
+}
+```
+#### useDispatch
+获取 store 中 dispatch 函数的引用，用于分发 action 时使用
+```js
+const Number = (props) => {
+    const { number, personCounts } = useSelector(allStates => ({
+        number: allStates.number.counts, 
+        personCounts: allStates.person.personArr.length
+    }));
+
+    const dispatch = useDispatch();
+
+    const handleClick = () => {
+        dispatch({type: 'increment', data: 1})
+    }
+
+    return (
+        <>
+            <h1>number: {number}, counts: {personCounts}</h1>
+            <button onclick={handleClick}>+1</button>
+        </>
+    )
+}
+```
+优化：给 `handleClick` 套上 `useCallback` 并传入 `dispatch` 依赖
+```js
+const Number = (props) => {
+    const { number, personCounts } = useSelector(allStates => ({
+        number: allStates.number.counts, 
+        personCounts: allStates.person.personArr.length
+    }));
+
+    const dispatch = useDispatch();
+
+    const handleClick = () => {
+        dispatch({type: 'increment', data: 1})
+    }
+
+    const handleClick = useCallback(() => {
+        dispatch({type: 'increment', data: 1})
+    }, [dispatch])
+
+    return (
+        <>
+            <h1>number: {number}, counts: {personCounts}</h1>
+            <button onclick={handleClick}>+1</button>
+        </>
+    )
+}
+```
+
+
+
+
 
