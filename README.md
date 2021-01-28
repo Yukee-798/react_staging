@@ -584,6 +584,11 @@ const Number = (props) => {
 ```
 
 
+### redux-saga
+
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gn2kny5gtcj31c40mqdu0.jpg)
+
+
 
 
 
