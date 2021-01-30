@@ -1,8 +1,8 @@
+import {combineReducers} from 'redux'
+import home from './home'
 
-const initState = {};
-export default function homeReducer(preState = initState, action) {
-    switch (action.type) {
-        default: 
-            return initState
+export default combineReducers(
+    {
+        home
     }
-}
+)

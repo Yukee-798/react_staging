@@ -588,6 +588,59 @@ const Number = (props) => {
 
 ![](https://tva1.sinaimg.cn/large/008eGmZEgy1gn2kny5gtcj31c40mqdu0.jpg)
 
+#### redux-saga 的基本概念
+`redux-saga` 是一个用于管理应用程序 `Side Effect` 副作用 (例如：异步操作等) 的第三方库，它的目的是让 `Side Effect` 管理更加的简单，执行更加高效
+
+`redux-saga` 就是 `redux` 的一个中间件，可以通过正常的 redux action 从主应用程序中启动、暂停和取消，它可以访问完整的 `redux state`，也能够 `disptach redux action`
+
+`redux-saga` 使用了 ES6 的 `Generator` 功能，让异步流程更加易于读取、写入和测试，通过这种方式，让异步看起来更像标准同步的 JavaScript 代码 (有点像 async/await)
+
+#### redux-saga 常用 API
+##### 连接 saga 与 store
+首先在 sagas.js 文件中写入如下代码
+```js
+export function* helloSaga() {
+  console.log('Hello Sagas!');
+}
+```
+在 store.js 文件中引入 `saga` 和 `用于创建 saga 中间件的函数 createSagaMiddleware`
+
+分别调用 `createSagaMiddleware` 和 `applyMiddleware` 来将 store 和 saga 关联起来
+```js
+import {createStore, applyMiddleware} from 'redux'
+import homeReducer from './reducers/index'
+import {defSaga} from './sagas'
+
+import createSagaMiddleware from 'redux-saga'
+
+// 创建 saga 中间件
+const sagaMiddleware = createSagaMiddleware()
+
+// 应用 saga 中间件到 redux 中
+export default createStore( homeReducer,applyMiddleware(sagaMiddleware))
+
+// 运行 saga 将其与 redux 关联起来
+sagaMiddleware.run(defSaga)
+```
+
+##### 使用 saga 辅助函数
+![](https://tva1.sinaimg.cn/large/008eGmZEly1gn3hwb4erej31d00eu14j.jpg)
+**takeEvery(pattern, saga, ...args)**
+**takeLatest(pattern, saga, ...args)**
+**throttle(ms, pattern, saga, ...args)**
+参数：
+* pattern：表示监听的 action type
+* saga：一个 saga 回调函数
+* ...args：其他参数
+
+使用场景：
+1. 页面交互过程中 dispatch action 到 store 中
+2. saga 函数中使用的 **辅助函数** 监听到相应的 action type
+3. 自动执行 **辅助函数** 第二个参数即 saga 回调函数
+
+
+
+
 
 
 
