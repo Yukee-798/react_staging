@@ -586,30 +586,54 @@ const Number = (props) => {
 
 ### redux-saga
 
-![](https://tva1.sinaimg.cn/large/008eGmZEgy1gn2kny5gtcj31c40mqdu0.jpg)
-
 #### redux-saga 的基本概念
 `redux-saga` 是一个用于管理应用程序 `Side Effect` 副作用 (例如：异步操作等) 的第三方库，它的目的是让 `Side Effect` 管理更加的简单，执行更加高效
 
-`redux-saga` 就是 `redux` 的一个中间件，可以通过正常的 redux action 从主应用程序中启动、暂停和取消，它可以访问完整的 `redux state`，也能够 `disptach redux action`
+`redux-saga` 就是 `redux` 的一个中间件，可以通过正常的 redux action 从主应用程序中启动、暂停和取消
+* 它可以访问 redux 中的 allStates
+* 它可以 dispacth redux action
+
+
+类比 redux-thunk：redux-thunk 的作用是在 dispatch 一个函数的时候，让 store 不要分发给 reducer 而是去执行这个函数
 
 `redux-saga` 使用了 ES6 的 `Generator` 功能，让异步流程更加易于读取、写入和测试，通过这种方式，让异步看起来更像标准同步的 JavaScript 代码 (有点像 async/await)
 
-#### redux-saga 常用 API
-##### 连接 saga 与 store
-首先在 sagas.js 文件中写入如下代码
+#### 合并 sagas 并连接 saga 与 store
+首先在 saga 文件夹中存在 helloSaga.js 和 defSaga.js ，代码如下
+`helloSaga.js`
 ```js
-export function* helloSaga() {
+export default function* helloSaga() {
   console.log('Hello Sagas!');
 }
 ```
-在 store.js 文件中引入 `saga` 和 `用于创建 saga 中间件的函数 createSagaMiddleware`
+`defSaga.js`
+```js
+export default function* watchIncrementAsync() {
+    yield takeEvery('INCREMENT_ASYNC', incrementAsync)
+}
+
+function* incrementAsync() {
+    yield delay(1000)
+    yield put({type: 'INCREMENT'})
+}
+```
+接下来合并上面的两个 saga 到一个 rootSaga.js 文件中
+```js
+export default function* rootSaga () {
+    yield all([
+        helloSaga(),
+        watchIncrementAsync()
+    ])
+}
+```
+
+在 store.js 文件中引入 `rootSaga.js` 和 `用于创建 saga 中间件的函数 createSagaMiddleware`
 
 分别调用 `createSagaMiddleware` 和 `applyMiddleware` 来将 store 和 saga 关联起来
 ```js
 import {createStore, applyMiddleware} from 'redux'
 import homeReducer from './reducers/index'
-import {defSaga} from './sagas'
+import rootSaga from './sagas/rootSaga.js'
 
 import createSagaMiddleware from 'redux-saga'
 
@@ -619,26 +643,134 @@ const sagaMiddleware = createSagaMiddleware()
 // 应用 saga 中间件到 redux 中
 export default createStore( homeReducer,applyMiddleware(sagaMiddleware))
 
-// 运行 saga 将其与 redux 关联起来
-sagaMiddleware.run(defSaga)
+// 该代码用来执行一次 saga 生成器函数(从头到尾跑一遍函数体内部代码)
+sagaMiddleware.run(rootSaga)
 ```
 
-##### 使用 saga 辅助函数
-![](https://tva1.sinaimg.cn/large/008eGmZEly1gn3hwb4erej31d00eu14j.jpg)
+#### 使用 saga 发起异步调用
+```js
+import { delay } from 'redux-saga'
+import { put, takeEvery } from 'redux-saga/effects'
+
+// ...
+
+// Our worker Saga: 将执行异步的 increment 任务
+export function* incrementAsync() {
+  yield delay(1000)
+  yield put({ type: 'INCREMENT' })
+}
+
+// Our watcher Saga: 在每个 INCREMENT_ASYNC action spawn 一个新的 incrementAsync 任务
+export function* watchIncrementAsync() {
+  yield takeEvery('INCREMENT_ASYNC', incrementAsync)
+}
+```
+`watchIncrementAsync` 用于监听 `INCREMENT_ASYNC` 描述的 action，监听到后会执行回调 `incrementAsync`
+
+`incrementAsync` 也是一个 saga，它会 yield 对象到 redux-saga middleware中， 被 yield 的对象都是一类指令，指令可被 middleware 解释执行。当 middleware 取得一个 yield 后的 Promise，middleware 会暂停 Saga，直到 Promise 完成。 在上面的例子中，incrementAsync 这个 Saga 会暂停直到 delay 返回的 Promise 被 resolve，这个 Promise 将在 1 秒后 resolve。一旦 Promise 被 resolve，middleware 会恢复 Saga 接着执行，直到遇到下一个 yield。
+
+
+`delay` 工具函数的作用是返回一个延迟 1 秒再 resolve 的 Promise 我们将使用这个函数去 block(阻塞) Generator。在这个例子中，下一个语句是另一个被 yield 的对象：调用 put({type: 'INCREMENT'}) 的结果，意思是告诉 middleware 发起一个 INCREMENT 的 action。
+
+put 就是我们称作 Effect 的一个例子。Effects 是一些简单 Javascript 对象，包含了要被 middleware 执行的指令。 当 middleware 拿到一个被 Saga yield 的 Effect，它会暂停 Saga，直到 Effect 执行完成，然后 Saga 会再次被恢复。
+
+
+
+
+#### 使用 saga 辅助函数
+
 **takeEvery(pattern, saga, ...args)**
 **takeLatest(pattern, saga, ...args)**
 **throttle(ms, pattern, saga, ...args)**
 参数：
 * pattern：表示监听的 action type
 * saga：一个 saga 回调函数
-* ...args：其他参数
+* ...args：回调 saga 时传入的参数
 
-使用场景：
+共有的特性：
 1. 页面交互过程中 dispatch action 到 store 中
 2. saga 函数中使用的 **辅助函数** 监听到相应的 action type
 3. 自动执行 **辅助函数** 第二个参数即 saga 回调函数
 
+独立的特性：
+|helper func|explain|
+|---|---|
+|takeEvery|触发了多少次异步 action，就会执行多少次异步任务|
+|takeLatest|每次新触发的异步 action 会取消掉上一次正在执行的异步任务|
+|throttle|首次监听会执行异步 action，在 ms 结束后只会执行第二次触发的异步任务|
 
+
+
+示例：
+```js
+import {
+    call,
+    select,
+    takeEvery,
+    takeLatest,
+    throttle,
+} from 'redux-saga/effects'
+
+import axios from 'axios'
+
+
+import {TAKEEVERY, TAKELATEST, THROTTLE} from '../constant'
+
+export default function* defSaga() {
+    yield takeEvery(TAKEEVERY, takeEveryCallback)
+    
+    yield takeLatest(TAKELATEST, takeLatestCallback)
+
+    yield throttle(2000, THROTTLE, throttleCallback)
+}
+
+function* takeEveryCallback() {
+    const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+        params: {
+            page: 1,
+            limit: 10
+        }
+    })
+    console.log('takeEvery', res);
+}
+
+// 当 takeLatest 不断的监听到 TAKELATEST action
+// 此时会不断的调用 takeLatestCallback 这个 saga 函数，并且执行 yield call(axios.get, 'https://cnodejs.org/api/v1/topics' 这行代码
+// 如果在下一次调用 takeLatestCallback 之前，上一次执行 callback 的所 yield 到 middleware 中的 Promise 执行完毕，则说明执行完了整个 takeLatestCallback，就不会被新调用的取消执行后面的代码执行，否则会被取消执行
+// 意思就是每次请求都是执行了的，但是在你下次请求前如果返回了结果即 Promise resolve 了，那么会执行下面的代码
+// 如果进行了下次请求，但是上一次的 Promise 并没有 resolve 则会停止上一次请求后代码的执行
+function* takeLatestCallback() {
+    const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+        params: {
+            page: 1,
+            limit: 10
+        }
+    })
+    console.log('takeLatest', res);
+}
+
+// 第一次请求，会启动 Promise 执行
+// 第二次请求为所设置的 ms 内第一次请求后的第二次请求，ms 结束后执行该请求
+// 最多在 ms 内只有两次请求，其余请求都不会执行
+function* throttleCallback() {
+    const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+        params: {
+            page: 1,
+            limit: 10
+        }
+    })
+    console.log('throttle', res);
+}
+```
+
+#### 常用的 Effect 创建器
+以下 effect 创建器都是在 saga 函数中使用的
+|Effect 创建器函数|解释|
+|---|---|
+|select(selector, ...args)|获取 redux 中保存的状态，如果调用 select 参数为空(即 yield select())，那么会返回 redux 中的 allStates|
+|call(fn, ...args)|命令 middleware以参数 args 调用 fn|
+|take(pattern)|阻塞 saga，匹配到相应 action 时停止阻塞 saga|
+|put(action)|命令 middleware 向 store 发起一个 action，这个 effect 是非阻塞的|
 
 
 

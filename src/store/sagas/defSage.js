@@ -1,8 +1,9 @@
 import {
+    call,
     select,
     takeEvery,
     takeLatest,
-    throttle,
+    throttle
 } from 'redux-saga/effects'
 
 import axios from 'axios'
@@ -12,24 +13,45 @@ import {TAKEEVERY, TAKELATEST, THROTTLE} from '../constant'
 
 
 
-export function* defSaga() {
-    yield takeEvery(TAKEEVERY, function* () {
-        const data = yield select(allStates => allStates.home.data)
-        console.log(data);
-        yield
-    })
+export default function* defSaga() {
+    yield takeEvery(TAKEEVERY, takeEveryCallback)
+    
+    yield takeLatest(TAKELATEST, takeLatestCallback)
 
-    yield takeLatest(TAKELATEST, function* () {
-        const {home: {data}} = yield select()
-        setTimeout(() => {
-            console.log('异步任务执行了');
-        }, 1000)
-        yield
-    })
+    yield throttle(10000, THROTTLE, throttleCallback)
+}
 
-    yield throttle(2000, THROTTLE, function* () {
-        const allStates = yield select()
-        console.log(allStates);
-        yield
+function* takeEveryCallback() {
+    console.log(yield select());
+    // const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+    //     params: {
+    //         page: 1,
+    //         limit: 10
+    //     }
+    // })
+    // console.log('takeEvery', res);
+}
+
+function* takeLatestCallback() {
+
+    const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+        params: {
+            page: 1,
+            limit: 10
+        }
     })
+    console.log('takeLatest', res);
+}
+
+
+function* throttleCallback() {
+    // const allStates = yield select()
+    // console.log(allStates);
+    const res = yield call(axios.get, 'https://cnodejs.org/api/v1/topics', {
+        params: {
+            page: 1,
+            limit: 10
+        }
+    })
+    console.log('throttle', res);
 }
