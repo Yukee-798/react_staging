@@ -1,6 +1,6 @@
 import React from 'react'
 import C from './C'
-import {NameContext} from '../context';
+import {NameContext} from './A';
 export default class B extends React.Component {
     static contextType = NameContext;
     render() {

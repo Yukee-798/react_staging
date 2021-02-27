@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import {NameContext} from '../context'
 import B from './B'
 
 // 创建一个用于保存 name 的上下文
-
+export const NameContext = React.createContext();
 
 class A extends Component {
     state = { name: 'tom' };

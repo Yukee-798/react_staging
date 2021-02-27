@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {NameContext} from '../context';
+import {NameContext} from './A';
 import D from './D'
 export default class C extends Component {
     static contextType = NameContext;
